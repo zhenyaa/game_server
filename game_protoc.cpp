@@ -5,24 +5,21 @@ void Greeting::serialize(char *buffer) const
     constexpr size_t msg_size = sizeof(msg);
     constexpr size_t uuid_size = sizeof(uuid);
 
-    // Копирование msg в буфер
     std::memcpy(buffer, msg, msg_size);
-
-    // Копирование uuid в буфер после msg
     std::memcpy(buffer + msg_size, uuid, uuid_size);
 }
 
 std::shared_ptr<Greeting> Greeting::deserialize(const char *data)
 {
-    std::shared_ptr<Greeting> header = std::make_shared<Greeting>(); // Используем std::make_shared для правильного выделения памяти
-    std::memcpy(header.get(), data, sizeof(Greeting)); // Копируем данные в объект
+    std::shared_ptr<Greeting> header = std::make_shared<Greeting>();
+    std::memcpy(header.get(), data, sizeof(Greeting));
     return header;
 }
 
 std::shared_ptr<MessageHeader> MessageHeader::deserialize(const char *data)
 {
-    std::shared_ptr<MessageHeader> header = std::make_shared<MessageHeader>(); // Используем std::make_shared для правильного выделения памяти
-    std::memcpy(header.get(), data, sizeof(MessageHeader)); // Копируем данные в объект
+    std::shared_ptr<MessageHeader> header = std::make_shared<MessageHeader>();
+    std::memcpy(header.get(), data, sizeof(MessageHeader));
     return header;
 }
 
@@ -41,10 +38,9 @@ void ClientsList::populate_with_clients(const std::map<std::string, std::shared_
 
 void SRoom::serialize(char *buffer) const
 {
-    std::memcpy(buffer, room_name, sizeof(room_name));  // Копируем имя комнаты
-    std::memcpy(buffer + sizeof(room_name), joined_uuid, sizeof(joined_uuid));  // Копируем UUID вошедшего клиента
+    std::memcpy(buffer, room_name, sizeof(room_name));
+    std::memcpy(buffer + sizeof(room_name), joined_uuid, sizeof(joined_uuid));
 
-    // Правильное смещение: room_name (128) + joined_uuid (48) = 176
     for (int i = 0; i < 5; ++i) {
         std::memcpy(buffer + sizeof(room_name) + sizeof(joined_uuid) + i * sizeof(uuids[0]), 
                     uuids[i], sizeof(uuids[i]));
@@ -53,7 +49,7 @@ void SRoom::serialize(char *buffer) const
 
 std::shared_ptr<SRoom> SRoom::deserialize(const char *data)
 {
-    auto room = std::make_shared<SRoom>();  // Создаём shared_ptr, чтобы память не освобождалась
+    auto room = std::make_shared<SRoom>();
 
     std::memcpy(room->room_name, data, sizeof(room->room_name));
     std::memcpy(room->joined_uuid, data + sizeof(room->room_name), sizeof(room->joined_uuid));

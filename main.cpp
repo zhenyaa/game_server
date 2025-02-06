@@ -9,31 +9,11 @@
 #include "user_data.h"
 #include <boost/asio/buffered_read_stream.hpp>
 #include "game_protoc.h"
-#include <boost/uuid/uuid.hpp>            // uuid class
-#include <boost/uuid/uuid_generators.hpp> // generators
-#include <boost/uuid/uuid_io.hpp>         // streaming operators etc.
+#include <boost/uuid/uuid.hpp>       
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp> 
 using namespace boost::asio;
 using ip::tcp;
-
-// template <typename T>
-// void send_message(std::shared_ptr<boost::asio::ip::tcp::socket> socket, MessageType type, const T& data) {
-//     // Заголовок
-//     MessageHeader header;
-//     header.type = type;
-//     header.size = sizeof(T);
-
-//     // Буфер для заголовка и данных
-//     char buffer[sizeof(MessageHeader) + sizeof(T)];
-
-//     // Сериализуем заголовок
-//     std::memcpy(buffer, &header, sizeof(MessageHeader));
-
-//     // Сериализуем данные
-//     data.serialize(buffer + sizeof(MessageHeader));
-
-//     // Отправляем данные
-//     boost::asio::write(*socket, boost::asio::buffer(buffer, sizeof(MessageHeader) + sizeof(T)));
-// }
 
 const char* message_type_to_string(MessageType type) {
     switch (type) {
@@ -44,116 +24,7 @@ const char* message_type_to_string(MessageType type) {
         default: return "UNKNOWN";
     }
 }
-// void handle_client(std::shared_ptr<boost::asio::ip::tcp::socket> socket) {
-//     //printf("socket was opend %s \n", boost::lexical_cast<std::string>(boost::this_thread::get_id()).c_str());
-//     char header_buffer[sizeof(MessageHeader)];
-//     MessageHeader header;
-//     try {
-//         Greeting g;
-//         snprintf(g.msg, sizeof(g.msg), "HELLO");
-//         send_message(socket, MessageType::GREETING, g);
-//         while (true)
-//         {
-//             size_t length = socket->read_some(boost::asio::buffer(header_buffer, sizeof(MessageHeader)));
-//             if (length == 0) {
-//                 std::cout << "Client disconnected\n";
-//                 continue;
-//             }
-//             MessageHeader::deserialize(header_buffer, header);
-//             printf("Received header: type = %s, size = %d\n", message_type_to_string(header.type), header.size);
-//             std::vector<char> data_buffer(header.size);
-//             size_t remaining = header.size;
-//             while (remaining > 0) {
-              
-//                 size_t bytes_read = socket->read_some( boost::asio::buffer(data_buffer.data() + (header.size - remaining), remaining));
-//                 remaining -= bytes_read;
-//             }
-//             if (remaining != 0) {
-//             std::cerr << "Error: expected " << header.size << " bytes, but received " << header.size - remaining << " bytes\n";
-//             break;
-//             }
 
-//             switch (header.type)
-//             {
-//             case MessageType::GREETING:{
-//                 Greeting gt;
-//                 Greeting::deserialize(data_buffer.data(), gt);
-//                 std::cout<< "Greeting received: "<<gt.msg<< " "<<gt.uuid<<std::endl;
-//                 bool status = register_client(gt.uuid, socket);
-//                 break;
-//             }
-//             case MessageType::USERSLIST:{
-//                 ClientsList client_lisr;
-//                 ClientsList::deserialize(data_buffer.data(), client_lisr);
-//                 ClientsList::populate_with_clients(clients, client_lisr);
-//                 send_message(socket, MessageType::USERSLIST, client_lisr);
-//                 break;
-//             }
-//             case MessageType::ADD_TO_GROUP:{
-//                 // std::shared_ptr<Room> room = std::make_shared<Room>();
-//                 // Room::deserialize(data_buffer.data(), *room);
-//                 // std::cout<<room->room_name<<"\n";
-//             }
-
-            
-//             default:
-//                 break;
-//             }
-
-          
-//         }
-//         printf("end\n");
-//         socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both); // Завершаем соединение для чтения и записи
-//         socket->close();
-//     //  printf("socket was closed %s \n", boost::lexical_cast<std::string>(boost::this_thread::get_id()).c_str());
-        
-//     }
-//     catch (const std::exception& e) {
-//         std::cerr << "Error handling client: " << e.what() << std::endl;
-//     }
-    
-    // int user_count = 0;
-    // UserData data;
-    // data.counter = user_count;
-    // snprintf(data.user_msg, sizeof(data.user_msg), "init data %d!", user_count);
-    // char buffer[sizeof(UserData)];
-    // data.serialize(buffer);
-
-    // while (true) {
-    //     try {
-    //         size_t length = socket->read_some(boost::asio::buffer(buffer));
-
-    //         if (length == 0) {
-    //             std::cout << "Client disconnected\n";
-    //             break;
-    //         }
-           
-    //         boost::asio::write(*socket, boost::asio::buffer(buffer));
-        
-    //         //header.deserialize(buffer, header);
-
-
-    //         // char recv_buff[sizeof(UserData)] = {0}; // Размер буфера для приема структуры
-    //         // size_t length = socket->receive(boost::asio::buffer(recv_buff)); // Чтение данных
-
-    //         // UserData received_data;
-    //         // UserData::deserialize(recv_buff, received_data);
-
-    //         // std::cout << "Received from client:\n";
-    //         // std::cout << "Counter: " << received_data.counter << "\n";
-    //         // std::cout << "Message: " << received_data.user_msg << "\n";
-    //         // received_data.counter ++;
-    //         // user_count = received_data.counter;
-    //         // received_data.serialize(buffer);
-
-
-    //     } catch (std::exception& e) {
-    //         std::cerr << "Client error: " << e.what() << std::endl;
-    //     }
-    // }
-    //socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both); // Завершаем соединение для чтения и записи
-    //socket->close();
-//};
 class Client;
 
 class Room
@@ -311,34 +182,21 @@ class Client : public std::enable_shared_from_this<Client>
 
     template <typename T>
     void send_message(MessageType type, const T& data) {
-        // Заголовок
         MessageHeader header;
         header.type = type;
         header.size = sizeof(T);
 
-        // Буфер для заголовка и данных
         char buffer[sizeof(MessageHeader) + sizeof(T)];
-
-        // Сериализуем заголовок
         std::memcpy(buffer, &header, sizeof(MessageHeader));
-
-        // Сериализуем данные
         data.serialize(buffer + sizeof(MessageHeader));
-
-        // Отправляем данные
         boost::asio::write(*socket, boost::asio::buffer(buffer, sizeof(MessageHeader) + sizeof(T)));
     }
 
     void greeting(){
-        std::shared_ptr<Greeting> g = std::make_shared<Greeting>();  // Создаем shared_ptr
-
-        // Инициализация полей
+        std::shared_ptr<Greeting> g = std::make_shared<Greeting>();
         snprintf(g->msg, sizeof(g->msg), "HELLO");
-        std::memset(g->uuid, 0, sizeof(g->uuid));  // Очищаем uuid
-
-        std::cout << "size of greeting: " << sizeof(*g) << std::endl;  // Получаем размер объекта
-
-        // Отправляем сообщение
+        std::memset(g->uuid, 0, sizeof(g->uuid));
+        std::cout << "size of greeting: " << sizeof(*g) << std::endl;
         send_message(MessageType::GREETING, *g);
     }
     void read_data(){
@@ -353,18 +211,15 @@ class Client : public std::enable_shared_from_this<Client>
         std::memset(header_buffer, 0, sizeof(header_buffer));
 
         try {
-            // Чтение заголовка
             size_t length = socket->read_some(boost::asio::buffer(header_buffer, sizeof(MessageHeader)));
             auto header = MessageHeader::deserialize(header_buffer);
             std::cout << header->size << std::endl;
-
-            // Чтение данных
             std::vector<char> data_buffer(header->size);
             size_t bytes_read = socket->read_some(boost::asio::buffer(data_buffer.data(), header->size));
 
             if (bytes_read != header->size) {
                 std::cerr << "Error: incomplete data received, expected " << header->size << " bytes, got " << bytes_read << std::endl;
-                continue;  // Пропускаем некорректный пакет
+                continue;
             }
 
             switch (header->type) {
@@ -382,7 +237,6 @@ class Client : public std::enable_shared_from_this<Client>
                     std::cout << r->room_name << std::endl;
                     std::cout << "joined uuid " << r->joined_uuid << std::endl;
 
-                    // Создание комнаты, если она не существует
                     if (strlen(r->room_name) == 0) {
                         boost::uuids::uuid uuid = boost::uuids::random_generator()();
                         auto s_uuid = boost::lexical_cast<std::string>(uuid);
@@ -390,9 +244,7 @@ class Client : public std::enable_shared_from_this<Client>
                         room->setName(s_uuid);
                         room->addClient(shared_from_this());
                     }
-                    
 
-                    // Добавление клиента в комнату, если uuid присутствует
                     if (strlen(r->joined_uuid) != 0) {
                         auto j_client = ClientStore::getInstance().findClient(r->joined_uuid);
                         room->addClient(j_client);
@@ -425,10 +277,10 @@ class Client : public std::enable_shared_from_this<Client>
         } catch (const boost::system::system_error& e) {
             if (e.code() == boost::asio::error::eof) {
                 std::cerr << "Client disconnected (EOF)" << std::endl;
-                break;  // Прерываем цикл, если клиент разорвал соединение
+                break;
             } else {
                 std::cerr << "System error: " << e.what() << std::endl;
-                break;  // В случае других системных ошибок также выходим из цикла
+                break;
             }
         }
     }
