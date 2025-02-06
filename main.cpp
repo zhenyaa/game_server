@@ -1,17 +1,20 @@
 #include "iostream"
-#include <boost/asio.hpp>
-#include <boost/thread.hpp>
 #include <memory>
 #include <cstring>
-#include <boost/chrono.hpp>
-#include <boost/thread/thread.hpp> 
-#include <boost/lexical_cast.hpp>
-#include "user_data.h"
-#include <boost/asio/buffered_read_stream.hpp>
-#include "game_protoc.h"
+
+#include <boost/asio.hpp>
+#include <boost/thread.hpp>
 #include <boost/uuid/uuid.hpp>       
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp> 
+#include <boost/chrono.hpp>
+#include <boost/thread/thread.hpp> 
+#include <boost/lexical_cast.hpp>
+#include <boost/asio/buffered_read_stream.hpp>
+
+#include "game_protoc.h"
+
+
 using namespace boost::asio;
 using ip::tcp;
 
